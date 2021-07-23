@@ -58,7 +58,7 @@ def ReadClasses(split_root, phase, class_name2index):
     
     return [class_name2index[name] for name in class_names]
 
-#root_dir = 'C:\\Users\\Georgios\\Desktop\\MediaTEK\\natural datasets\\CIFAR-FS\\cifar100\\cifar100'
+
 root_dir = 'meta/dataset/cifar100'
 class_images, class_images_names, class_index2name, class_name2index = load_data_in_memory(os.path.join(root_dir, 'data'))
 

@@ -1,6 +1,4 @@
 import sys
-# work_dir = '/proj/gpu_xxx/allotMeta2/salsa'
-# sys.path.insert(0,work_dir)
 
 from meta.experiment.Experiment import Experiment
 from meta.train_ops.ClassificationMAMLTrainOP import ClassificationMAMLTrainOP

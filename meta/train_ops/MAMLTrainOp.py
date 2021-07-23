@@ -1,4 +1,3 @@
-from meta.train_ops.TrainOp import TrainOP
 import meta.CONSTANTS as see
 from meta.utils.stopping_criteria import StopByAnnealing
 
@@ -10,7 +9,7 @@ import numpy as np
 import time
 
 
-class MAMLTrainOp(TrainOP):
+class MAMLTrainOp:
     def __init__(self, model, args):
 
         # TODO: This is opaque. Refactor this

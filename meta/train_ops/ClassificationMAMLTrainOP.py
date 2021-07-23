@@ -10,7 +10,6 @@ Created on Wed Jun 24 11:15:18 2020
 #MAMLTrainOP is derived from the base abstract class TrainOP
 
 #project modules
-from meta.train_ops.TrainOp import TrainOP
 import meta.CONSTANTS as see #contains the global logger: see.logs
 from meta.utils.stopping_criteria import StopByAnnealing
 
@@ -28,7 +27,7 @@ import datetime
 
 import random
 
-class ClassificationMAMLTrainOP(TrainOP):
+class ClassificationMAMLTrainOP:
     def __init__(self, model, args):
         self.train_config = None
         self.device = args.device

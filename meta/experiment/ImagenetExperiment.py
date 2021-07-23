@@ -14,7 +14,7 @@ from torch.utils.data.dataloader import DataLoader
 from meta.data.CorrectImagenetDataset import ImagenetStaticDataset, ImagenetBatchSampler
 
 from torch.nn import CrossEntropyLoss
-from meta.meta_learners.ClassificationMetaModel import ConvMetaModel
+from meta.meta_learners.ClassificationMetaModel import ConvMetaModelImagenet
 from meta.utils.ClassificationExperimentLogger import ClassificationExperimentLogger
 import meta.CONSTANTS as see #contains the global logger: see.logs
 
@@ -81,12 +81,10 @@ class ImagenetExperiment(Experiment):
         #train for the current configuration
         ImagenetTrainingDataset = ImagenetStaticDataset(self.args.root_dir, 'train', no_of_tasks=self.args.no_of_tasks, classes_per_task=self.args.no_of_classes, no_of_data_points_per_task=self.args.datapoints_per_task_per_taskclass)
         ImagenetTrainingSampler = ImagenetBatchSampler(data_source = ImagenetTrainingDataset, no_of_tasks = 25, no_of_data_points_per_task = 50)
-        # ImagenetTrainingSampler = ImagenetBatchSampler(data_source = ImagenetTrainingDataset, no_of_tasks = 5, no_of_data_points_per_task = 50)
 
         TrainDataloader = DataLoader(ImagenetTrainingDataset, batch_sampler=ImagenetTrainingSampler, num_workers = self.args.num_workers)
         
         ImagenetValidationDataset = ImagenetStaticDataset(self.args.root_dir, 'val', no_of_tasks=500, classes_per_task=self.args.no_of_classes, no_of_data_points_per_task=10)
-        # ImagenetValidationSampler = ImagenetBatchSampler(data_source = ImagenetValidationDataset, no_of_tasks = 100, no_of_data_points_per_task = 50)
         ImagenetValidationSampler = ImagenetBatchSampler(data_source = ImagenetValidationDataset, no_of_tasks = None, no_of_data_points_per_task = None)
         ValDataloader = DataLoader(ImagenetValidationDataset, batch_sampler=ImagenetValidationSampler, num_workers = self.args.num_workers)
 
@@ -97,7 +95,6 @@ class ImagenetExperiment(Experiment):
         """this needs to be changed"""
         #--------------------------------------
         ImagenetTestDataset = ImagenetStaticDataset(self.args.root_dir, 'test', no_of_tasks = 500, classes_per_task=self.args.no_of_classes, no_of_data_points_per_task = 10)
-        # ImagenetTestSampler = ImagenetBatchSampler(data_source = ImagenetTestDataset, no_of_tasks = None, no_of_data_points_per_task = 500)
         ImagenetTestSampler = ImagenetBatchSampler(data_source = ImagenetTestDataset, no_of_tasks = None, no_of_data_points_per_task = None)
         TestDataloader = DataLoader(ImagenetTestDataset, batch_sampler=ImagenetTestSampler, num_workers = self.args.num_workers)
         
@@ -107,7 +104,6 @@ class ImagenetExperiment(Experiment):
         
         see.logs.cache['test_loss'] = self.train_op.mean_outer_loss(TestDataloader)
         see.logs.cache['test_accuracy'] = self.train_op.get_accuracy(TestDataloader)
-        # print("test_accuracy{}".format(test_accuracy))
         #update the log file
         see.logs.write(see.logs.cache, name='log.pickle')
         #--------------------------------------
@@ -122,11 +118,8 @@ if __name__ == '__main__':
     parser.add_argument('--exp_config_dir', type=str, default='meta/experiment/config_experiment1.json',
             help='Directory of the configuration of the experiment.')
 
-    # parser.add_argument('--root-dir', type=str, default='meta/dataset/Imagenet100',
-    #                     help='root directory folder')
-    
-    parser.add_argument('--root-dir', type=str, default='/code/MAML-Pytorch/miniimagenet',
-                        help='root directory folder')
+    parser.add_argument('--root-dir', type=str, default='meta/dataset//miniimagenet',
+                         help='root directory folder')
     
     parser.add_argument('--train_test_split_inner', type=int, default=0.5,
             help='Train test split for the inner loop. Default: 0.3')
@@ -146,7 +139,7 @@ if __name__ == '__main__':
     parser.add_argument('--meta_lr', type=float, default=0.001,
             help='The learning rate of the meta optimiser (outer loop lr). Default: 0.001')
     
-    parser.add_argument('--hidden-size', type=int, default=64,
+    parser.add_argument('--hidden-size', type=int, default=32,
             help='Number of channels for each convolutional layer (default: 64).')
     
     parser.add_argument('--max-num-epochs', type=int, default=60000,
@@ -154,6 +147,10 @@ if __name__ == '__main__':
     
     parser.add_argument('--num-workers', type=int, default=0,
             help='Number of workers for data loading (default: 0).')
+
+    parser.add_argument('--num_classes', type=int, default=5,
+            help='Number of classes')
+
     
     parser.add_argument('--use-cuda', type=int, default=1, help='For cuda set to 1. For cpu set to 0. Default: 1.')
 
@@ -175,11 +172,10 @@ if __name__ == '__main__':
         print('Device: ', args.device)
     
     
-    # budget = 30000
     budget = args.budget
     runs = 5
     no_of_classes = 5 #it stands for N_way
-    model = ConvMetaModel(3, no_of_classes) #instantiate the base learner
+    model = ConvMetaModelImagenet(3, no_of_classes) #instantiate the base learner
     
 
     no_of_datapoints_per_taskclass_list = [2, 4, 6, 8, 10,12,14, 20, 50, 100, 200, 500, 1000]
@@ -202,7 +198,6 @@ if __name__ == '__main__':
             exp.run()
             
             #---evaluation---
-            #exp.setup_logs(init=False)
             exp.evaluate()
             
             
